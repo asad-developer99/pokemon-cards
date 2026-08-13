@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pokemon Cards with 3D Effect</title>
+    <!-- Google Fonts - Bricolage Grotesque -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Swiper CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css"
+    />
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+
+    <style>
+      /* Reset defaults and setup base styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      /* Body setup with grid layout as requested */
+      body {
+        display: grid;
+        place-content: center;
+        min-height: 100vh;
+        width: 100vw;
+        background-color: #000; /* bg-gray-900 equivalent */
+        overflow: hidden;
+        font-family: "Bricolage Grotesque", sans-serif;
+      }
+
+      /* Main container for all content */
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      /* 3D Card Effect Variables */
+      :root {
+        --timing: 400ms;
+        --rotation: 15deg;
+      }
+
+      .pokemon-card {
+        perspective: 1000px;
+        width: 16rem; /* w-64 equivalent */
+        height: 24rem; /* h-96 equivalent */
+      }
+
+      .card-inner {
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform var(--timing) ease;
+        width: 100%;
+        height: 100%;
+        border-radius: 0.75rem; /* rounded-xl equivalent */
+        overflow: hidden;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 10px 10px -5px rgba(0, 0, 0, 0.04); /* shadow-xl equivalent */
+      }
+
+      .pokemon-card:hover .card-inner {
+        transform: rotateX(var(--rotation));
+      }
+
+      .card-inner::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 100;
+        background-image: radial-gradient(
+          circle,
+          transparent 150px,
+          rgba(0, 0, 0, 0.3)
+        );
+        opacity: 0;
+        transition: opacity var(--timing);
+        border-radius: 1rem;
+      }
+
+      .pokemon-card:hover .card-inner::before {
+        opacity: 1;
+      }
+
+      /* Card inner content styling */
+      .card-content {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .card-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.1;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+      }
+
+      .card-number {
+        position: absolute;
+        top: 0.5rem;
+        left: 0.5rem;
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+        font-family: "Bricolage Grotesque", monospace;
+      }
+
+      .pokemon-image {
+        width: 100%;
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1.5rem;
+        transform: translateZ(20px);
+        transition: transform var(--timing);
+      }
+
+      .pokemon-card:hover .pokemon-image {
+        transform: translateZ(40px) translateY(-10px);
+      }
+
+      .pokemon-image img {
+        width: 100%;
+        height: auto;
+        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.4));
+      }
+
+      .pokemon-info {
+        padding: 1rem;
+        background-color: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(4px);
+        transform: translateZ(10px);
+        transition: transform var(--timing);
+      }
+
+      .pokemon-card:hover .pokemon-info {
+        transform: translateZ(30px) translateY(-5px);
+      }
+
+      .pokemon-info h2 {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: white;
+        text-align: center;
+        margin-bottom: 0.5rem;
+        font-family: "Bricolage Grotesque", sans-serif;
+      }
+
+      .type-container {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+      }
+
+      .type-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: white;
+        font-family: "Bricolage Grotesque", sans-serif;
+      }
+
+      .type-grass {
+        background-color: #48bb78; /* bg-green-500 equivalent */
+      }
+
+      .type-poison {
+        background-color: #9f7aea; /* bg-purple-500 equivalent */
+      }
+
+      .type-fire {
+        background-color: #ed8936; /* bg-orange-500 equivalent */
+      }
+
+      .type-flying {
+        background-color: #63b3ed; /* bg-blue-400 equivalent */
+      }
+
+      .type-water {
+        background-color: #4299e1; /* bg-blue-500 equivalent */
+      }
+
+      .shiny-effect {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.6) 50%,
+          rgba(255, 255, 255, 0) 100%
+        );
+        background-size: 200% 100%;
+        opacity: 0.3;
+        pointer-events: none;
+        animation: shimmer 2s linear infinite;
+      }
+
+      @keyframes shimmer {
+        0% {
+          background-position: -200% 0;
+        }
+        100% {
+          background-position: 200% 0;
+        }
+      }
+
+      .swiper {
+        width: 100%;
+        max-width: 72rem;
+      }
+
+      .swiper-wrapper {
+        padding-bottom: 3rem;
+      }
+
+      .swiper-slide {
+        display: flex;
+        justify-content: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Swiper container -->
+      <div class="swiper">
+        <div class="swiper-wrapper">
+          <!-- Pokemon Cards will go here -->
+
+          <!-- Bulbasaur #0001 -->
+          <div class="swiper-slide">
+            <div class="pokemon-card">
+              <div
+                class="card-inner"
+                style="
+                  background: linear-gradient(145deg, #78c850 0%, #5ca935 100%);
+                "
+              >
+                <div class="card-content">
+                  <div
+                    class="card-background"
+                    style="
+                      background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNNTAgODVjMTkuMzMgMCAzNS0xNS42NyAzNS0zNVM2OS4zMyAxNSA1MCAxNSAxNSAzMC42NyAxNSA1MHMxNS42NyAzNSAzNSAzNXptMC0xNWMxMS4wNCAwIDIwLTguOTYgMjAtMjBzLTguOTYtMjAtMjAtMjAtMjAgOC45Ni0yMCAyMCA4Ljk2IDIwIDIwIDIweiIvPjwvc3ZnPg==');
+                    "
+                  ></div>
+
+                  <div class="card-number">#0001</div>
+
+                  <div class="pokemon-image">
+                    <img
+                      src="https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/001.png"
+                      alt="Bulbasaur"
+                    />
+                  </div>
+
+                  <div class="pokemon-info">
+                    <h2>Bulbasaur</h2>
+                    <div class="type-container">
+                      <span class="type-badge type-grass">Grass</span>
+                      <span class="type-badge type-poison">Poison</span>
+                    </div>
+                  </div>
+
+                  <div class="shiny-effect"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ivysaur #0002 -->
+          <div class="swiper-slide">
+            <div class="pokemon-card">
+              <div
+                class="card-inner"
+                style="
+                  background: linear-gradient(145deg, #78c850 0%, #5ca935 100%);
+                "
+              >
+                <div class="card-content">
+                  <div
+                    class="card-background"
+                    style="
+                      background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNNTAgODVjMTkuMzMgMCAzNS0xNS42NyAzNS0zNVM2OS4zMyAxNSA1MCAxNSAxNSAzMC42NyAxNSA1MHMxNS42NyAzNSAzNSAzNXptMC0xNWMxMS4wNCAwIDIwLTguOTYgMjAtMjBzLTguOTYtMjAtMjAtMjAtMjAgOC45Ni0yMCAyMCA4Ljk2IDIwIDIwIDIweiIvPjwvc3ZnPg==');
+                    "
+                  ></div>
+
+                  <div class="card-number">#0002</div>
+
+                  <div class="pokemon-image">
+                    <img
+                      src="https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/002.png"
+                      alt="Ivysaur"
+                    />
+                  </div>
+
+                  <div class="pokemon-info">
+                    <h2>Ivysaur</h2>
+                    <div class="type-container">
+                      <span class="type-badge type-grass">Grass</span>
+                      <span class="type-badge type-poison">Poison</span>
+                    </div>
+                  </div>
+
+                  <div class="shiny-effect"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Venusaur #0003 -->
+          <div class="swiper-slide">
+            <div class="pokemon-card">
+              <div
+                class="card-inner"
+                style="
+                  background: linear-gradient(145deg, #78c850 0%, #5ca935 100%);
+                "
+              >
+                <div class="card-content">
+                  <div
+                    class="card-background"
+                    style="
+                      background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNNTAgODVjMTkuMzMgMCAzNS0xNS42NyAzNS0zNVM2OS4zMyAxNSA1MCAxNSAxNSAzMC42NyAxNSA1MHMxNS42NyAzNSAzNSAzNXptMC0xNWMxMS4wNCAwIDIwLTguOTYgMjAtMjBzLTguOTYtMjAtMjAtMjAtMjAgOC45Ni0yMCAyMCA4Ljk2IDIwIDIwIDIweiIvPjwvc3ZnPg==');
+                    "
+                  ></div>
+
+                  <div class="card-number">#0003</div>
+
+                  <div class="pokemon-image">
+                    <img
+                      src="https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/003.png"
+                      alt="Venusaur"
+                    />
+                  </div>
+
+                  <div class="pokemon-info">
+                    <h2>Venusaur</h2>
+                    <div class="type-container">
+                      <span class="type-badge type-grass">Grass</span>
+                      <span class="type-badge type-poison">Poison</span>
+                    </div>
+                  </div>
+
+                  <div class="shiny-effect"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charmander #0004 -->
+          <div class="swiper-slide">
+            <div class="pokemon-card">
+              <div
+                class="card-inner"
+                style="
+                  background: linear-gradient(145deg, #f08030 0%, #dd6610 100%);
+                "
+              >
+                <div class="card-content">
+                  <div
+                    class="card-background"
+                    style="
+                      background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNNTAgODVjMTkuMzMgMCAzNS0xNS42NyAzNS0zNVM2OS4zMyAxNSA1MCAxNSAxNSAzMC42NyAxNSA1MHMxNS42NyAzNSAzNSAzNXptMC0xNWMxMS4wNCAwIDIwLTguOTYgMjAtMjBzLTguOTYtMjAtMjAtMjAtMjAgOC45Ni0yMCAyMCA4Ljk2IDIwIDIwIDIweiIvPjwvc3ZnPg==');
+                    "
+                  ></div>
+
+                  <div class="card-number">#0004</div>
+
+                  <div class="pokemon-image">
+                    <img
+                      src="https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/004.png"
+                      alt="Charmander"
+                    />
+                  </div>
+
+                  <div class="pokemon-info">
+                    <h2>Charmander</h2>
+                    <div class="type-container">
+                      <span class="type-badge type-fire">Fire</span>
+                    </div>
+                  </div>
+
+                  <div class="shiny-effect"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charmeleon #0005 -->
+          <div class="swiper-slide">
+            <div class="pokemon-card">
+              <div
+                class="card-inner"
+                style="
+                  background: linear-gradient(145deg, #f08030 0%, #dd6610 100%);
+                "
+              >
+                <div class="card-content">
+                  <div
+                    class="card-background"
+                    style="
+                      background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNNTAgODVjMTkuMzMgMCAzNS0xNS42NyAzNS0zNVM2OS4zMyAxNSA1MCAxNSAxNSAzMC42NyAxNSA1MHMxNS42NyAzNSAzNSAzNXptMC0xNWMxMS4wNCAwIDIwLTguOTYgMjAtMjBzLTguOTYtMjAtMjAtMjAtMjAgOC45Ni0yMCAyMCA4Ljk2IDIwIDIwIDIweiIvPjwvc3ZnPg==');
+                    "
+                  ></div>
+
+                  <div class="card-number">#0005</div>
+
+                  <div class="pokemon-image">
+                    <img
+                      src="https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/005.png"
+                      alt="Charmeleon"
+                    />
+                  </div>
+
+                  <div class="pokemon-info">
+                    <h2>Charmeleon</h2>
+                    <div class="type-container">
+                      <span class="type-badge type-fire">Fire</span>
+                    </div>
+                  </div>
+
+                  <div class="shiny-effect"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charizard #0006 -->
+          <div class="swiper-slide">
+            <div class="pokemon-card">
+              <div
+                class="card-inner"
+                style="
+                  background: linear-gradient(145deg, #f08030 0%, #dd6610 100%);
+                "
+              >
+                <div class="card-content">
+                  <div
+                    class="card-background"
+                    style="
+                      background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNNTAgODVjMTkuMzMgMCAzNS0xNS42NyAzNS0zNVM2OS4zMyAxNSA1MCAxNSAxNSAzMC42NyAxNSA1MHMxNS42NyAzNSAzNSAzNXptMC0xNWMxMS4wNCAwIDIwLTguOTYgMjAtMjBzLTguOTYtMjAtMjAtMjAtMjAgOC45Ni0yMCAyMCA4Ljk2IDIwIDIwIDIweiIvPjwvc3ZnPg==');
+                    "
+                  ></div>
+
+                  <div class="card-number">#0006</div>
+
+                  <div class="pokemon-image">
+                    <img
+                      src="https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/006.png"
+                      alt="Charizard"
+                    />
+                  </div>
+
+                  <div class="pokemon-info">
+                    <h2>Charizard</h2>
+                    <div class="type-container">
+                      <span class="type-badge type-fire">Fire</span>
+                      <span class="type-badge type-flying">Flying</span>
+                    </div>
+                  </div>
+
+                  <div class="shiny-effect"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Squirtle #0007 -->
+          <div class="swiper-slide">
+            <div class="pokemon-card">
+              <div
+                class="card-inner"
+                style="
+                  background: linear-gradient(145deg, #6890f0 0%, #4c6fcc 100%);
+                "
+              >
+                <div class="card-content">
+                  <div
+                    class="card-background"
+                    style="
+                      background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNNTAgODVjMTkuMzMgMCAzNS0xNS42NyAzNS0zNVM2OS4zMyAxNSA1MCAxNSAxNSAzMC42NyAxNSA1MHMxNS42NyAzNSAzNSAzNXptMC0xNWMxMS4wNCAwIDIwLTguOTYgMjAtMjBzLTguOTYtMjAtMjAtMjAtMjAgOC45Ni0yMCAyMCA4Ljk2IDIwIDIwIDIweiIvPjwvc3ZnPg==');
+                    "
+                  ></div>
+
+                  <div class="card-number">#0007</div>
+
+                  <div class="pokemon-image">
+                    <img
+                      src="https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/007.png"
+                      alt="Squirtle"
+                    />
+                  </div>
+
+                  <div class="pokemon-info">
+                    <h2>Squirtle</h2>
+                    <div class="type-container">
+                      <span class="type-badge type-water">Water</span>
+                    </div>
+                  </div>
+
+                  <div class="shiny-effect"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Wartortle #0008 -->
+          <div class="swiper-slide">
+            <div class="pokemon-card">
+              <div
+                class="card-inner"
+                style="
+                  background: linear-gradient(145deg, #6890f0 0%, #4c6fcc 100%);
+                "
+              >
+                <div class="card-content">
+                  <div
+                    class="card-background"
+                    style="
+                      background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNNTAgODVjMTkuMzMgMCAzNS0xNS42NyAzNS0zNVM2OS4zMyAxNSA1MCAxNSAxNSAzMC42NyAxNSA1MHMxNS42NyAzNSAzNSAzNXptMC0xNWMxMS4wNCAwIDIwLTguOTYgMjAtMjBzLTguOTYtMjAtMjAtMjAtMjAgOC45Ni0yMCAyMCA4Ljk2IDIwIDIwIDIweiIvPjwvc3ZnPg==');
+                    "
+                  ></div>
+
+                  <div class="card-number">#0008</div>
+
+                  <div class="pokemon-image">
+                    <img
+                      src="https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/008.png"
+                      alt="Wartortle"
+                    />
+                  </div>
+
+                  <div class="pokemon-info">
+                    <h2>Wartortle</h2>
+                    <div class="type-container">
+                      <span class="type-badge type-water">Water</span>
+                    </div>
+                  </div>
+
+                  <div class="shiny-effect"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const swiper = new Swiper(".swiper", {
+          effect: "cards",
+          grabCursor: true,
+          centeredSlides: true,
+          slidesPerView: "auto",
+          loop: true,
+          breakpoints: {
+            640: {
+              slidesPerView: 1,
+            },
+            768: {
+              slidesPerView: 2,
+              spaceBetween: 20,
+            },
+            1024: {
+              slidesPerView: 3,
+              spaceBetween: 30,
+            },
+          },
+        });
+      });
+    </script>
+  </body>
+</html>
